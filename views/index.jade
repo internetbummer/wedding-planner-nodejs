@@ -1,0 +1,17 @@
+extends layout
+
+block content
+	h1= title
+
+	div.tabbable
+		ul.nav.nav-tabs
+			li.active: a(href="#home",data-toggle="tab",data-target="#home") Home
+			li: a(href="#guestlist",data-toggle="tab",data-target="#guestlist") Guest List
+			li: a(href="#seating",data-toggle="tab",data-target="#seating") Seating
+		div.tab-content
+			div.tab-pane.fade.in.active#home
+				h3 Home
+			div.tab-pane.fade.in#guestlist
+				include guestlist
+			div.tab-pane.fade.in#seating
+				include seating

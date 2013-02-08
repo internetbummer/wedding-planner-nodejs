@@ -1,0 +1,42 @@
+div Seating Assignments
+		div(data-bind="foreach: tables")#main
+			div.guesttable
+				span(data-bind='text: guests.id')
+				div(data-bind='sortable: { data: guests, allowDrop: $root.isTableFull}').seats
+					div(data-bind='text: name, css: { plusone: hasGuest }').guest
+				div(data-bind='text: guests().length+"/"+$root.maximumGuests, css: { ready: guests().length < $root.maximumGuests }')
+		div#extra
+			div Available guests
+			div(data-bind='sortable: availableGuests').new
+				div(data-bind='text: name').guest
+
+		div(data-bind='flash: lastAction')#message
+		div(data-bind='flash: lastError')#error
+
+		div#master
+			div Master List
+			table
+				tr
+					th
+					th Seat One
+					th Seat Two
+					th Seat Three
+					th Seat Four
+					th Seat Five
+					th Seat Six
+					th Seat Seven
+					th Seat Eight
+					th Seat Nine
+					th Seat Ten
+				tbody(data-bind='foreach: tables')
+					tr
+						th(data-bind='text: guests.id')
+						// ko foreach: guests
+						td(data-bind='text: name')
+						// /ko 
+				tr
+					th Available
+					// ko foreach: availableGuests
+					td(data-bind='text: name')
+					// /ko 
+script(type='text/javascript',src='/javascripts/seating.js')
