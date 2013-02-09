@@ -40,7 +40,26 @@ exports.getGuests = function (callback) {
 		if (err) { console.log("ERROR: "+err); }
 		callback(data);
 	});
-}
+};
+
+exports.removeGuest = function (id) {
+	console.log("REMOVE ID: "+id);
+	var objectId = mongojs.ObjectId(id);
+	db.guests.remove({_id: objectId}, function (err) {
+		if (err) { console.log(err); }
+	});
+};
+
+exports.updateGuests = function (guests) {
+	for (var i = 0; i < guests.length; i++) {
+		var guest = guests[i];
+		console.log(guest);
+		guest._id = mongojs.ObjectId(guest.id);
+		db.guests.update({_id: guest._id}, guest, function(err, updatedGuest){
+			console.log(updatedGuest);
+		});
+	}
+};
 
 exports.addGuest = function (name, callback) {
 	var guest = {
@@ -48,13 +67,14 @@ exports.addGuest = function (name, callback) {
 		address: "",
 		hasGuest: false,
 		rsvp: false,
-		table: 0
+		table: 0,
+		guestName: ""
 	};
 	db.guests.save(guest, function(err,data) {
 		if (err) { console.log("ERROR: "+err); }
 		callback(data);
 	})
-}
+};
 
 exports.updateSettings = function (id, settings) {
     db.users.update({id: id}, { $set: { settings: settings } } , function(err) {

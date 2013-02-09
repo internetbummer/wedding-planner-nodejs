@@ -8,7 +8,7 @@
   "dependencies": {
     "express": "3.0.0rc4",
     "jade": "*",
-    "mongojs": "*",
+    "mongojs": "0.4.6",
     "socket.io": "*",
     "less-middleware": "*",
     "connect": "*",

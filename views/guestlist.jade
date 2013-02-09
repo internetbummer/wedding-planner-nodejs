@@ -1,4 +1,6 @@
 .row-fluid
+	span Guest Count: 
+	span(data-bind="text: guestCount")
 	table.table.table-striped.table-hover.table-condensed
 		thead
 			tr
@@ -6,47 +8,18 @@
 				th Has Guest?
 				th RSVP?
 				th Address
+				th
 		tbody(data-bind='foreach: guests')
 			tr
 				td: input(type="text",data-bind="value: name")
 				td
 					input(type="checkbox",data-bind="checked: hasGuest")
-					input(type="text",data-bind="visible: hasGuest()")
+					input(type="text",data-bind="value: guestName, visible: hasGuest")
 				td: input(type="checkbox",data-bind="checked: rsvp")
 				td: textarea(data-bind="value: address")
+				td: button(data-bind="click: $root.removeGuest").btn.btn-danger.btn-small: i.icon-remove.icon-white
 	form(data-bind="submit: addGuest")
 		p New Guest:
-		input(data-bind='value: nameToAdd, valueUpdate: "afterkeydown"')
-		button(type="submit",data-bind="enable: nameToAdd().length > 0").btn.btn-primary Add
-script(type='text/javascript')
-	var GuestModel = function() {
-		var self = this;
-		self.guests = ko.observableArray();
-		self.addGuest = function() {
-			if (self.nameToAdd() !== "") {
-				socket.emit('addGuest', self.nameToAdd());
-				this.nameToAdd("");
-			}
-		};
-		self.nameToAdd = ko.observable("");
-		self.removeGuest = function(guest) {
-			self.guests.remove(guest);
-		};
-	};
-
-	guestModel = new GuestModel();
-	ko.applyBindings(guestModel, document.getElementById('guestlist'));
-	
-
-	$(document).on( 'loaded' , function (e) {
-		socket.on('guestAdded', function(guest) {
-			guestModel.guests.remove(guest);
-			guestModel.guests.push(guest);
-		});
-		socket.emit('getGuests', function(guests) {
-			for (var i = 0; i < guests.length; i++) {
-				var guest = guests[i];
-				guestModel.guests.push(new Guest(guest._id,guest.name,guest.hasGuest,guest.rsvp,guest.address,guest.table));
-			}
-		});
-	});
+		input(type='text')#nameToAdd
+		button(type="submit").btn.btn-primary Add
+script(src='/javascripts/guestlist.js')

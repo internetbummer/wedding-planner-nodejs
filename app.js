@@ -63,7 +63,9 @@ app.get('/logout', routes.logout);
 
 app.get('/auth/google/callback',
 	passport.authenticate('google', { failureRedirect: '/' }),
-	exports.index
+	function(req,res) {
+		res.redirect('/');
+	}
 );
 
 var server = http.createServer(app);
@@ -110,23 +112,40 @@ setInterval(function() {
 }, 5000);
 
 var namedSockets = {};
+
 io.sockets.on('connection', function(socket) {
-		console.log("new connection");
-		console.log(socket.handshake.session.passport.user.displayName+' has connected to a socket');
-		namedSockets[socket.handshake.session.passport.user.id] = socket;
-		getSignedInUsers(io, function(clients) {
-			socket.emit('signed_in_users', clients);
-		});
-		socket.on('addGuest', function(name) {
-			myDb.addGuest(name, function(guest) {
-				io.sockets.emit('guestAdded', guest);
-			})
-		});
-		socket.on('getGuests', function(callback) {
+	console.log("new connection");
+	console.log(socket.handshake.session.passport.user.displayName+' has connected to a socket');
+	namedSockets[socket.handshake.session.passport.user.id] = socket;
+	getSignedInUsers(io, function(clients) {
+		socket.emit('signed_in_users', clients);
+	});
+	socket.on('addGuest', function(name) {
+		myDb.addGuest(name, function(guest) {
 			myDb.getGuests(function(guests) {
-				callback(guests);
+				io.sockets.emit('updatedGuests', guests);
+			});
+		})
+	});
+	socket.on('getGuests', function(callback) {
+		myDb.getGuests(function(guests) {
+			callback(guests);
+		});
+	});
+	socket.on('removeGuest', function(id) {
+		myDb.removeGuest(id, function() {
+			myDb.getGuests(function(guests) {
+				io.sockets.emit('updatedGuests', guests);
 			});
 		});
+	})
+	socket.on('updateGuests', function(guests,callback) {
+		myDb.updateGuests(guests, function() {
+			myDb.getGuests(function(updatedGuests) {
+				callback(updatedGuests);
+			});
+		});
+	});
 });
 
 function getSignedInUsers (io,callback) {
