@@ -1,3 +1,4 @@
+var guest_index = {};
 ko.bindingHandlers.flash = {
     init: function(element) {
         $(element).hide();
@@ -43,6 +44,9 @@ var SeatingChartModel = function(tables) {
 
     this.updateLastAction = function(arg) {
         self.lastAction("Moved " + arg.item.name() + " from " + arg.sourceParent.id + " (seat " + (arg.sourceIndex + 1) + ") to " + arg.targetParent.id + " (seat " + (arg.targetIndex + 1) + ")");
+        console.log(arg.item);
+        socket.emit('addGuestToTable', arg.item.id, arg.targetParent.id);
+        socket.emit('removeGuestFromTable', arg.item.id, arg.sourceParent.id);
     };
 
     //verify that if a fourth member is added, there is at least one member of each gender
@@ -57,8 +61,8 @@ var SeatingChartModel = function(tables) {
 };
 
 var initialTables = [];
-for (var i = 1; i < 17; i++) {
-    var table = new Table("Table "+i, []);
+for (var i = 0; i < 17; i++) {
+    var table = new Table(i, []);
     initialTables.push(table);
 }
 
@@ -68,3 +72,46 @@ ko.bindingHandlers.sortable.beforeMove = vm.verifyAssignments;
 ko.bindingHandlers.sortable.afterMove = vm.updateLastAction;
 
 ko.applyBindings(vm,document.getElementById('seating'));
+
+$(document).on( 'loaded' , function (e) {
+    socket.on('guestRemovedFromTable', guestRemovedFromTable);
+    socket.on('guestAddedToTable', guestAddedToTable);
+    loadTables();
+});
+
+function guestRemovedFromTable(guest_id, table_id) {
+    console.log("Removing "+guest_id+" from table "+table_id);
+    if (vm.tables()[table_id].guests.indexOf(guest_index[guest_id]) !== -1) {
+        vm.tables()[table_id].guests.remove(guest_index[guest_id]);
+    }
+};
+
+function guestAddedToTable (guest_id, table_id) {
+    console.log("Adding "+guest_id+" to table "+table_id);
+    if (vm.tables()[table_id].guests.indexOf(guest_index[guest_id]) === -1) {
+        vm.tables()[table_id].guests.push(guest_index[guest_id]);
+    }
+};
+
+function loadTables() {
+    vm.availableGuests.removeAll();
+    for (var i = 0; i < vm.tables().length; i++) {
+        vm.tables()[i].guests.removeAll();
+    }
+    console.log("LOADING TABLES");
+    socket.emit('getGuests', function (guests) {
+        console.log(vm.tables());
+        for (var i = 0; i < guests.length; i++) {
+            var g = guests[i];
+            var guest = new Guest(g.id,g.name,g.hasGuest,g.rsvp,g.address,g.table,g.guestName);
+            guest_index[g.id] = guest;
+            console.log(guest.table_id);
+            if (typeof g.table === 'undefined' || g.table === 0 || g.table === "0" || g.table === "Available Guests") {
+                vm.availableGuests.push(guest);
+            } else {
+                console.log(g.name+" "+g.table);
+                vm.tables()[g.table].guests.push(guest);
+            }
+        }
+    });
+};

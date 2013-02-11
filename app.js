@@ -125,7 +125,7 @@ io.sockets.on('connection', function(socket) {
 			myDb.getGuests(function(guests) {
 				io.sockets.emit('updatedGuests', guests);
 			});
-		})
+		});
 	});
 	socket.on('getGuests', function(callback) {
 		myDb.getGuests(function(guests) {
@@ -138,7 +138,7 @@ io.sockets.on('connection', function(socket) {
 				io.sockets.emit('updatedGuests', guests);
 			});
 		});
-	})
+	});
 	socket.on('updateGuests', function(guests,callback) {
 		myDb.updateGuests(guests, function() {
 			myDb.getGuests(function(updatedGuests) {
@@ -146,17 +146,33 @@ io.sockets.on('connection', function(socket) {
 			});
 		});
 	});
+	socket.on('addGuestToTable', function (guest_id, table_id) {
+		myDb.addGuestToTable(guest_id, table_id, function() {
+			io.sockets.emit('guestAddedToTable', guest_id, table_id);
+		});
+	});
+	socket.on('removeGuestFromTable', function (guest_id, table_id) {
+		myDb.removeGuestFromTable(guest_id, table_id, function() {
+			io.sockets.emit('guestRemovedFromTable', guest_id, table_id);
+		});
+	});
+
+	socket.on('getTables', function (callback) {
+		myDb.getTables(function(tables) {
+			callback(tables);
+		});
+	});
 });
 
 function getSignedInUsers (io,callback) {
-		var sockets = io.sockets.clients();
-		var clients = {};
-		for (var i = 0; i < sockets.length; i++) {
-				if (sockets[i].handshake.session && sockets[i].handshake.session.passport.user.id) {
-						clients[sockets[i].handshake.session.passport.user.id] = sockets[i].handshake.session.passport.user.displayName;
-				}
+	var sockets = io.sockets.clients();
+	var clients = {};
+	for (var i = 0; i < sockets.length; i++) {
+		if (sockets[i].handshake.session && sockets[i].handshake.session.passport.user.id) {
+			clients[sockets[i].handshake.session.passport.user.id] = sockets[i].handshake.session.passport.user.displayName;
 		}
-		callback(clients);
+	}
+	callback(clients);
 };
 
 passport.use(new GoogleStrategy({
