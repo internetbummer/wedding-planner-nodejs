@@ -61,7 +61,7 @@ var SeatingChartModel = function(tables) {
 };
 
 var initialTables = [];
-for (var i = 0; i < 17; i++) {
+for (var i = 0; i < 20; i++) {
     var table = new Table(i, []);
     initialTables.push(table);
 }
@@ -81,14 +81,20 @@ $(document).on( 'loaded' , function (e) {
 
 function guestRemovedFromTable(guest_id, table_id) {
     console.log("Removing "+guest_id+" from table "+table_id);
-    if (vm.tables()[table_id].guests.indexOf(guest_index[guest_id]) !== -1) {
+    if (table_id === "Available Guests") {
+        vm.availableGuests.remove(guest_index[guest_id]);
+    }
+    else if (vm.tables()[table_id].guests.indexOf(guest_index[guest_id]) !== -1) {
         vm.tables()[table_id].guests.remove(guest_index[guest_id]);
     }
 };
 
 function guestAddedToTable (guest_id, table_id) {
     console.log("Adding "+guest_id+" to table "+table_id);
-    if (vm.tables()[table_id].guests.indexOf(guest_index[guest_id]) === -1) {
+    if (table_id === "Available Guests") {
+        vm.availableGuests.push(guest_index[guest_id]);
+    }
+    else if (vm.tables()[table_id].guests.indexOf(guest_index[guest_id]) === -1) {
         vm.tables()[table_id].guests.push(guest_index[guest_id]);
     }
 };
