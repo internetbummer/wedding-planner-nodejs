@@ -112,7 +112,7 @@ function loadTables() {
             var guest = new Guest(g.id,g.name,g.hasGuest,g.rsvp,g.address,g.table,g.guestName);
             guest_index[g.id] = guest;
             console.log(guest.table_id);
-            if (typeof g.table === 'undefined' || g.table === 0 || g.table === "0" || g.table === "Available Guests") {
+            if (typeof g.table === 'undefined' || g.table === -1 || g.table === "-1" || g.table === "Available Guests") {
                 vm.availableGuests.push(guest);
             } else {
                 console.log(g.name+" "+g.table);
