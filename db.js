@@ -9,7 +9,7 @@ exports.addGuestToTable = function (guest_id, table_id, callback) {
 	db.tables.save({guest: guest_id, table: table_id}, function() {
 		console.log("TABLE ID IS: "+table_id);
 		if (table_id === "Available Guests") {
-			table_id = -1;
+			table_id = 0;
 		}
 		db.guests.update({_id: mongojs.ObjectId(guest_id)}, {$set:{table: table_id}}, function () {
 			callback();
@@ -92,7 +92,7 @@ exports.addGuest = function (name, callback) {
 		address: "",
 		hasGuest: false,
 		rsvp: false,
-		table: -1,
+		table: 0,
 		guestName: ""
 	};
 	db.guests.save(guest, function(err,data) {
