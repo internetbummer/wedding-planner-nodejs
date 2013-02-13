@@ -36,7 +36,6 @@ guestModel = new GuestModel();
 guestModel.tracker = ko.ChangeTracker(guestModel);
 isDirty = ko.computed(function () {
 	var val = guestModel.tracker().somethingHasChanged();
-	console.log(val);
 	if (val) {
 		save();
 	}
@@ -74,8 +73,6 @@ function update_guests(guests) {
 		if (!guest.id) {
 			guest.id = guest._id;
 		}
-		console.log("Adding");
-		console.log(guest);
 		var oldGuest = ko.utils.arrayFirst(guestModel.guests(), function (currentGuest) {
 			return currentGuest.id === guest.id;
 		});

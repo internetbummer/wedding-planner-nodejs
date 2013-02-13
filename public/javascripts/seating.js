@@ -44,7 +44,6 @@ var SeatingChartModel = function(tables) {
 
     this.updateLastAction = function(arg) {
         self.lastAction("Moved " + arg.item.name() + " from " + arg.sourceParent.id + " (seat " + (arg.sourceIndex + 1) + ") to " + arg.targetParent.id + " (seat " + (arg.targetIndex + 1) + ")");
-        console.log(arg.item);
         socket.emit('addGuestToTable', arg.item.id, arg.targetParent.id);
         socket.emit('removeGuestFromTable', arg.item.id, arg.sourceParent.id);
     };
@@ -104,18 +103,14 @@ function loadTables() {
     for (var i = 0; i < vm.tables().length; i++) {
         vm.tables()[i].guests.removeAll();
     }
-    console.log("LOADING TABLES");
     socket.emit('getGuests', function (guests) {
-        console.log(vm.tables());
         for (var i = 0; i < guests.length; i++) {
             var g = guests[i];
             var guest = new Guest(g.id,g.name,g.hasGuest,g.rsvp,g.address,g.table,g.guestName);
             guest_index[g.id] = guest;
-            console.log(guest.table_id);
             if (typeof g.table === 'undefined' || g.table === -1 || g.table === "-1" || g.table === "Available Guests") {
                 vm.availableGuests.push(guest);
             } else {
-                console.log(g.name+" "+g.table);
                 vm.tables()[g.table].guests.push(guest);
             }
         }
