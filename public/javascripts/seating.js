@@ -42,6 +42,17 @@ var SeatingChartModel = function(tables) {
         return count < self.maximumGuests;
     };
 
+    this.countGuestsAtTable = function (parent) {
+        var count = 0;
+        for (var i = 0; i < parent().length; i++) {
+            count++;
+            if (parent()[i].hasGuest()) {
+                count++;
+            }
+        }
+        return count;
+    }
+
     this.updateLastAction = function(arg) {
         self.lastAction("Moved " + arg.item.name() + " from " + arg.sourceParent.id + " (seat " + (arg.sourceIndex + 1) + ") to " + arg.targetParent.id + " (seat " + (arg.targetIndex + 1) + ")");
         socket.emit('addGuestToTable', arg.item.id, arg.targetParent.id);
