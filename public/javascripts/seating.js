@@ -21,6 +21,16 @@ ko.bindingHandlers.flash = {
 var Table = function(id, guests) {
     this.guests = ko.observableArray(guests);
     this.guests.id = id;
+    this.countGuestsAtTable = ko.computed(function () {
+        var count = 0;
+        for (var i = 0; i < this.guests().length; i++) {
+            count++;
+            if (this.guests()[i].hasGuest()) {
+                count++;
+            }
+        }
+        return count;
+    }, this);
 };
 
 var SeatingChartModel = function(tables) {
@@ -41,17 +51,6 @@ var SeatingChartModel = function(tables) {
         }
         return count < self.maximumGuests;
     };
-
-    this.countGuestsAtTable = function (parent) {
-        var count = 0;
-        for (var i = 0; i < parent().length; i++) {
-            count++;
-            if (parent()[i].hasGuest()) {
-                count++;
-            }
-        }
-        return count;
-    }
 
     this.updateLastAction = function(arg) {
         self.lastAction("Moved " + arg.item.name() + " from " + arg.sourceParent.id + " (seat " + (arg.sourceIndex + 1) + ") to " + arg.targetParent.id + " (seat " + (arg.targetIndex + 1) + ")");
