@@ -12,7 +12,7 @@ div(data-bind='flash: lastError')#error
 			div.guesttable
 				span(data-bind='text: guests.id+1')
 				div(data-bind='sortable: { data: guests, allowDrop: $root.isTableFull}').seats
-					div(data-bind='html: namePlusGuest, css: { plusone: hasGuest }').guest
+					div(data-bind='html: namePlusGuest, css: { plusone: hasGuest, rsvp: rsvp }').guest
 				div(data-bind='text: countGuestsAtTable()+"/"+$root.maximumGuests, css: { ready: countGuestsAtTable() < $root.maximumGuests }')
 	//- div#extra
 	//- 	div Available guests

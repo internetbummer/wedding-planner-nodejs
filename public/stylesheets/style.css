@@ -7643,6 +7643,9 @@ a.badge:hover {
 .guest.plusone {
   height: 40px;
 }
+.guest.rsvp {
+  background-color: green;
+}
 .new {
   border: solid 1px #444;
   background-color: #ccc;
