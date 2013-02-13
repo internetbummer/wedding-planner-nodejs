@@ -75,6 +75,13 @@ exports.removeGuest = function (id) {
 	});
 };
 
+exports.updateGuest = function (guest, callback) {
+    guest._id = mongojs.ObjectId(guest.id);
+    db.guests.update({_id: guest._id}, guest, function (err, updatedGuest) {
+        callback(updatedGuest);
+    });
+};
+
 exports.updateGuests = function (guests) {
 	for (var i = 0; i < guests.length; i++) {
 		var guest = guests[i];

@@ -122,9 +122,7 @@ io.sockets.on('connection', function(socket) {
 	});
 	socket.on('addGuest', function(name) {
 		myDb.addGuest(name, function(guest) {
-			myDb.getGuests(function(guests) {
-				io.sockets.emit('updatedGuests', guests);
-			});
+			io.sockets.emit('guestAdded', guest);
 		});
 	});
 	socket.on('getGuests', function(callback) {
@@ -144,6 +142,11 @@ io.sockets.on('connection', function(socket) {
 			myDb.getGuests(function(updatedGuests) {
 				callback(updatedGuests);
 			});
+		});
+	});
+	socket.on('updateGuest', function (guest) {
+		myDb.updateGuest(guest, function (updatedGuest) {
+			socket.broadcast.emit('guestUpdated', updatedGuest);
 		});
 	});
 	socket.on('addGuestToTable', function (guest_id, table_id) {

@@ -24,24 +24,13 @@ var GuestModel = function() {
 		socket.emit('removeGuest', guest.id, function () {
 			save_disabled = true;
 			self.guests.remove(guest);
-			self.tracker().markCurrentStateAsClean;
 			save_disabled = false;
-		})
+		});
 		self.guests.remove(guest);
 	};
 };
 
 guestModel = new GuestModel();
-
-guestModel.tracker = ko.ChangeTracker(guestModel);
-isDirty = ko.computed(function () {
-	var val = guestModel.tracker().somethingHasChanged();
-	if (val) {
-		save();
-	}
-	return val;
-});
-guestModel.tracker().markCurrentStateAsClean;
 ko.applyBindings(guestModel, document.getElementById('guestlist'));
 
 $(document).on( 'loaded' , function (e) {
@@ -52,42 +41,39 @@ $(document).on( 'loaded' , function (e) {
 		if (oldGuest) {
 			guestModel.guests.remove(oldGuest);
 		}
-		guestModel.guests.push(guest);
-		guestModel.tracker().markCurrentStateAsClean;
+		var newGuest = new Guest(guest.id,guest.name,guest.hasGuest,guest.rsvp,guest.address,guest.table,guest.guestName);
+		guestModel.guests.push(newGuest);
 	});
 	socket.on('guestUpdated', function (guest) {
-		updateGuests();
-	});
-	socket.on('updatedGuests', update_guests);
-	socket.emit('getGuests', update_guests);
-});
-
-function updateGuests() {
-	socket.emit('getGuests', update_guests);
-};
-
-function update_guests(guests) {
-	save_disabled = true;
-	for (var i = 0; i < guests.length; i++) {
-		var guest = guests[i];
 		if (!guest.id) {
 			guest.id = guest._id;
 		}
+		var newGuest = new Guest(guest.id,guest.name,guest.hasGuest,guest.rsvp,guest.address,guest.table,guest.guestName);
 		var oldGuest = ko.utils.arrayFirst(guestModel.guests(), function (currentGuest) {
 			return currentGuest.id === guest.id;
 		});
 		if (oldGuest) {
 			guestModel.guests.remove(oldGuest);
 		}
-		guestModel.guests.push(new Guest(guest.id,guest.name,guest.hasGuest,guest.rsvp,guest.address,guest.table,guest.guestName));
-	}
-	guestModel.tracker().markCurrentStateAsClean;
-	save_disabled = false;
-};
-
-function save() {
-	if (!save_disabled) {
-		console.log("saving...");
-		socket.emit('updateGuests', ko.toJS(guestModel.guests));
-	}
-};
+		guestModel.guests.push(newGuest);
+	});
+	//socket.on('updatedGuests', update_guests);
+	socket.emit('getGuests', function (guests) {
+		save_disabled = true;
+		for (var i = 0; i < guests.length; i++) {
+			var guest = guests[i];
+			if (!guest.id) {
+				guest.id = guest._id;
+			}
+			var oldGuest = ko.utils.arrayFirst(guestModel.guests(), function (currentGuest) {
+				return currentGuest.id === guest.id;
+			});
+			if (oldGuest) {
+				guestModel.guests.remove(oldGuest);
+			}
+			var newGuest = new Guest(guest.id,guest.name,guest.hasGuest,guest.rsvp,guest.address,guest.table,guest.guestName);
+			guestModel.guests.push(newGuest);
+		}
+		save_disabled = false;
+	});
+});
